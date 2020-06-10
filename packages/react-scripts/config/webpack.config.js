@@ -39,6 +39,7 @@ const getCacheIdentifier = require('react-dev-utils/getCacheIdentifier');
 const postcssNormalize = require('postcss-normalize');
 
 const appPackageJson = require(paths.appPackageJson);
+const i18n = require(paths.i18nConfig);
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
@@ -561,6 +562,21 @@ module.exports = function (webpackEnv) {
                 'sass-loader'
               ),
             },
+            // i18n support by using messageformat
+            ...i18n.supported.map(lang => ({
+              test: new RegExp(`${lang}\\.yaml$`),
+              type: 'javascript/auto', // required by Webpack 4
+              loader: require.resolve('messageformat-loader'),
+              options: {
+                biDiSupport: false,
+                convert: false,
+                disablePluralKeyChecks: false,
+                formatters: null,
+                intlSupport: false,
+                locale: [lang],
+                strictNumberSign: false,
+              },
+            })),
             // "file" loader makes sure those assets get served by WebpackDevServer.
             // When you `import` an asset, you get its (virtual) filename.
             // In production, they would get copied to the `build` folder.
